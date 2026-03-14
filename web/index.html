@@ -11,10 +11,10 @@
         <h1>🎹 Korg Prophecy Formant Synthesizer</h1>
         <p>WASM Emulation of the Prophecy "Vocal" synthesis model</p>
         
-        <div class="status" id="status">Initializing...</div>
+        <div class="status" id="status">Loading WASM module...</div>
         
         <div class="controls">
-            <button id="initBtn" onclick="initAudio()">Initialize Audio</button>
+            <button id="initBtn" onclick="initAudio()" disabled>Initialize Audio</button>
             
             <div class="control-group">
                 <label>Formant:</label>
@@ -53,10 +53,19 @@
         </small></p>
     </div>
 
+    <script>
+        // Configure Emscripten module BEFORE loading the script
+        var ProphecyModule = {
+            onRuntimeInitialized: function() {
+                console.log('WASM module initialized');
+                document.getElementById('status').textContent = "WASM loaded. Click 'Initialize Audio' to start.";
+                document.getElementById('initBtn').disabled = false;
+            }
+        };
+    </script>
     <script src="prophecy.js"></script>
     <script src="js/midi.js"></script>
     <script>
-        let Module;
         let audioCtx;
         
         // Initialize keyboard (2 octaves)
@@ -108,15 +117,13 @@
         }
 
         async function initAudio() {
-            document.getElementById('status').textContent = "Loading WASM module...";
-            
-            Module = await ProphecyModule();
+            document.getElementById('status').textContent = "Initializing audio...";
             
             // AudioContext requires user gesture
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             await audioCtx.resume();
             
-            if (Module._initAudio()) {
+            if (ProphecyModule._initAudio()) {
                 document.getElementById('status').textContent = 
                     "✅ Audio initialized. Sample rate: " + audioCtx.sampleRate;
                 document.getElementById('initBtn').disabled = true;
@@ -128,23 +135,23 @@
         }
 
         function playNote(note) {
-            if (!Module) return;
-            Module._midiNoteOn(note, 100);
+            if (!ProphecyModule) return;
+            ProphecyModule._midiNoteOn(note, 100);
             highlightKey(note, true);
         }
 
         function stopNote(note) {
-            if (!Module) return;
-            Module._midiNoteOff(note);
+            if (!ProphecyModule) return;
+            ProphecyModule._midiNoteOff(note);
             highlightKey(note, false);
         }
 
         function updateFormant(vowel) {
-            if (Module) Module._setFormant(vowel.charCodeAt(0));
+            if (ProphecyModule) ProphecyModule._setFormant(vowel.charCodeAt(0));
         }
 
         function updateWaveform(val) {
-            if (Module) Module._setWaveform(parseInt(val));
+            if (ProphecyModule) ProphecyModule._setWaveform(parseInt(val));
         }
     </script>
 </body>

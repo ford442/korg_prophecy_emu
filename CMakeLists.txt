@@ -39,7 +39,6 @@ if(EMSCRIPTEN)
     # Additional Emscripten link options
     target_link_options(prophecy PRIVATE
         "-sWASM=1"
-        "-sMODULARIZE=1"
         "-sEXPORT_NAME=ProphecyModule"
         "-sINITIAL_MEMORY=64MB"
         "-sALLOW_MEMORY_GROWTH=1"

@@ -16,7 +16,7 @@ constexpr double PI = 3.14159265358979323846;
 constexpr float TWO_PI = static_cast<float>(2.0 * PI);
 constexpr float SAMPLE_RATE = 44100.0f;  // Web Audio standard
 constexpr int MAX_VOICES = 4;
-constexpr int BLOCK_SIZE = 128;  // Web Audio processing block size
+constexpr int BLOCK_SIZE = 512;  // SDL2/Emscripten Web Audio buffer size (must be power of 2, >= 256)
 
 // Formant data from Prophecy Vocal model (parameter guide)
 struct FormantSet {

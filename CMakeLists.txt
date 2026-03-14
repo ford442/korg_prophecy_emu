@@ -45,10 +45,14 @@ if(EMSCRIPTEN)
         "-s EXPORTED_FUNCTIONS=['_malloc','_free','_initAudio','_shutdownAudio','_midiNoteOn','_midiNoteOff','_setFormant','_setWaveform','_setCutoff','_setResonance','_allNotesOff']"
         "-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']"
         "-s ENVIRONMENT=web,worker"
+        "-s AUTO_JS_LIBRARIES=1"
+        "-s AUTO_NATIVE_LIBRARIES=1"
         "-O3"
         "-flto"
         "--closure=1"
     )
+    
+
     
     # Set output to web directory
     set_target_properties(prophecy PROPERTIES

@@ -7,7 +7,6 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-#include <emscripten/bind.h>
 #endif
 
 #include "AudioEngine.h"
@@ -85,15 +84,3 @@ void allNotesOff() {
 }
 
 } // extern "C"
-
-#ifdef __EMSCRIPTEN__
-// Optional: EMSCRIPTEN_BINDINGS for class interface (not used with C API above)
-// but useful for future TypeScript integration
-EMSCRIPTEN_BINDINGS(prophecy_module) {
-    emscripten::enum_<Voice::Waveform>("Waveform")
-        .value("Saw", Voice::Saw)
-        .value("Square", Voice::Square)
-        .value("Triangle", Voice::Triangle)
-        .value("Pulse", Voice::Pulse);
-}
-#endif

@@ -39,14 +39,13 @@ if(EMSCRIPTEN)
     # Additional Emscripten link options
     target_link_options(prophecy PRIVATE
         "-sWASM=1"
-        "-sEXPORT_ES6=1"
         "-sMODULARIZE=1"
         "-sEXPORT_NAME=ProphecyModule"
         "-sINITIAL_MEMORY=64MB"
         "-sALLOW_MEMORY_GROWTH=1"
         "-sEXPORTED_FUNCTIONS=['_malloc','_free','_initAudio','_shutdownAudio','_midiNoteOn','_midiNoteOff','_setFormant','_setWaveform','_setCutoff','_setResonance','_allNotesOff']"
         "-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']"
-        "-sENVIRONMENT=web,worker"
+        "-sENVIRONMENT=web"
         "-O3"
         "-flto"
         "--closure=1"

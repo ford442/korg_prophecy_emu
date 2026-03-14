@@ -3,17 +3,35 @@ import paramiko
 import getpass
 
 # --- Server Configuration ---
-# Replace these with your server's details.
-# It's better to use environment variables or a config file for sensitive data.
 HOSTNAME = "1ink.us"
-PORT = 22  # Default SFTP/SSH port
+PORT = 22
 USERNAME = "ford442"
 
 # --- Project Configuration ---
-# The local directory to upload from.
-LOCAL_DIRECTORY = "build"
-# The directory on the server where the files should go (e.g., 'public_html/wasm-game').
+# Only upload the web assets, not build artifacts
+LOCAL_DIRECTORY = "build/web"
 REMOTE_DIRECTORY = "test.1ink.us/prophecy"
+
+# Files/directories to exclude from upload
+EXCLUDE_PATTERNS = [
+    '.git',
+    '.gitignore',
+    '__pycache__',
+    '*.pyc',
+    '.DS_Store',
+    'Thumbs.db',
+    '*.log',
+    '.env',
+    'node_modules',
+]
+
+def should_exclude(item_name):
+    """Check if item should be excluded based on patterns."""
+    import fnmatch
+    for pattern in EXCLUDE_PATTERNS:
+        if fnmatch.fnmatch(item_name, pattern):
+            return True
+    return False
 
 def upload_directory(sftp_client, local_path, remote_path):
     """
@@ -21,13 +39,15 @@ def upload_directory(sftp_client, local_path, remote_path):
     """
     print(f"Creating remote directory: {remote_path}")
     try:
-        # Create the target directory on the server if it doesn't exist.
         sftp_client.mkdir(remote_path)
     except IOError:
-        # Directory already exists, which is fine.
         print(f"Directory {remote_path} already exists.")
 
     for item in os.listdir(local_path):
+        if should_exclude(item):
+            print(f"Skipping excluded item: {item}")
+            continue
+            
         local_item_path = os.path.join(local_path, item)
         remote_item_path = f"{remote_path}/{item}"
 
@@ -35,29 +55,25 @@ def upload_directory(sftp_client, local_path, remote_path):
             print(f"Uploading file: {local_item_path} -> {remote_item_path}")
             sftp_client.put(local_item_path, remote_item_path)
         elif os.path.isdir(local_item_path):
-            # If it's a directory, recurse into it.
             upload_directory(sftp_client, local_item_path, remote_item_path)
 
 def main():
     """
     Main function to connect to the server and start the upload process.
     """
-    password = 'GoogleBez12!' # getpass.getpass(f"Enter password for {USERNAME}@{HOSTNAME}: ")
+    password = 'GoogleBez12!'
 
     transport = None
     sftp = None
     try:
-        # Establish the SSH connection
         transport = paramiko.Transport((HOSTNAME, PORT))
         print("Connecting to server...")
         transport.connect(username=USERNAME, password=password)
         print("Connection successful!")
 
-        # Create an SFTP client from the transport
         sftp = paramiko.SFTPClient.from_transport(transport)
         print(f"Starting upload of '{LOCAL_DIRECTORY}' to '{REMOTE_DIRECTORY}'...")
 
-        # Start the recursive upload
         upload_directory(sftp, LOCAL_DIRECTORY, REMOTE_DIRECTORY)
 
         print("\n✅ Deployment complete!")
@@ -65,7 +81,6 @@ def main():
     except Exception as e:
         print(f"❌ An error occurred: {e}")
     finally:
-        # Ensure the connection is closed
         if sftp:
             sftp.close()
         if transport:
@@ -74,6 +89,7 @@ def main():
 
 if __name__ == "__main__":
     if not os.path.exists(LOCAL_DIRECTORY):
-        print(f"Error: Local directory '{LOCAL_DIRECTORY}' not found. Did you run 'npm run build' first?")
+        print(f"Error: Local directory '{LOCAL_DIRECTORY}' not found.")
+        print("Did you run './build.sh' first?")
     else:
         main()

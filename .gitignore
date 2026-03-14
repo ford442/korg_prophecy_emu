@@ -1,0 +1,28 @@
+# Build artifacts
+build/
+cmake-build-*/
+*.o
+*.a
+*.so
+*.wasm
+*.js.map
+
+# Emscripten generated
+*.js
+!web/**/*.js
+!tests/**/*.js
+*.data
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korg Prophecy WASM</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎹 Korg Prophecy Formant Synthesizer</h1>
+        <p>WASM Emulation of the Prophecy "Vocal" synthesis model</p>
+        
+        <div class="status" id="status">Initializing...</div>
+        
+        <div class="controls">
+            <button id="initBtn" onclick="initAudio()">Initialize Audio</button>
+            
+            <div class="control-group">
+                <label>Formant:</label>
+                <select id="formant" onchange="updateFormant(this.value)">
+                    <option value="a">A (as in "car")</option>
+                    <option value="e">E (as in "bed")</option>
+                    <option value="i">I (as in "sit")</option>
+                    <option value="o">O (as in "hot")</option>
+                    <option value="u">U (as in "put")</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Waveform:</label>
+                <select id="waveform" onchange="updateWaveform(this.value)">
+                    <option value="0">Sawtooth (Recommended)</option>
+                    <option value="1">Square</option>
+                    <option value="2">Triangle</option>
+                    <option value="3">Pulse</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>MIDI Input:</label>
+                <select id="midiInput"><option>None</option></select>
+            </div>
+        </div>
+
+        <div class="keyboard" id="keyboard"></div>
+        
+        <p><small>References: 
+            <a href="https://github.com/bhamadicharef/Korg-Prophecy-Solo-Synthesizer" 
+               style="color:#e94560" target="_blank">
+               Korg Prophecy Service Manual & Parameter Guide
+            </a>
+        </small></p>
+    </div>
+
+    <script src="prophecy.js"></script>
+    <script src="js/midi.js"></script>
+    <script>
+        let Module;
+        let audioCtx;
+        
+        // Initialize keyboard (2 octaves)
+        const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const keyboard = document.getElementById('keyboard');
+        
+        for (let oct = 3; oct <= 4; oct++) {
+            for (let i = 0; i < 12; i++) {
+                const noteNum = oct * 12 + i;
+                const key = document.createElement('div');
+                key.className = `key ${notes[i].includes('#') ? 'black' : ''}`;
+                key.dataset.note = noteNum;
+                key.textContent = notes[i] + oct;
+                key.onmousedown = () => playNote(noteNum);
+                key.onmouseup = () => stopNote(noteNum);
+                key.onmouseleave = () => stopNote(noteNum);
+                keyboard.appendChild(key);
+            }
+        }
+
+        // Computer keyboard mapping (QWERTY row = C major)
+        const keyMap = {
+            'a': 60, 'w': 61, 's': 62, 'e': 63, 'd': 64,
+            'f': 65, 't': 66, 'g': 67, 'y': 68, 'h': 69, 'u': 70, 'j': 71,
+            'k': 72, 'o': 73, 'l': 74, 'p': 75
+        };
+        const activeNotes = new Set();
+
+        document.addEventListener('keydown', e => {
+            if (keyMap[e.key] && !activeNotes.has(keyMap[e.key])) {
+                activeNotes.add(keyMap[e.key]);
+                playNote(keyMap[e.key]);
+                highlightKey(keyMap[e.key], true);
+            }
+        });
+        
+        document.addEventListener('keyup', e => {
+            if (keyMap[e.key]) {
+                activeNotes.delete(keyMap[e.key]);
+                stopNote(keyMap[e.key]);
+                highlightKey(keyMap[e.key], false);
+            }
+        });
+
+        function highlightKey(note, active) {
+            document.querySelectorAll(`[data-note="${note}"]`).forEach(k => {
+                k.classList.toggle('active', active);
+            });
+        }
+
+        async function initAudio() {
+            document.getElementById('status').textContent = "Loading WASM module...";
+            
+            Module = await ProphecyModule();
+            
+            // AudioContext requires user gesture
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            await audioCtx.resume();
+            
+            if (Module._initAudio()) {
+                document.getElementById('status').textContent = 
+                    "✅ Audio initialized. Sample rate: " + audioCtx.sampleRate;
+                document.getElementById('initBtn').disabled = true;
+                initMidi();
+            } else {
+                document.getElementById('status').textContent = 
+                    "❌ Failed to initialize audio";
+            }
+        }
+
+        function playNote(note) {
+            if (!Module) return;
+            Module._midiNoteOn(note, 100);
+            highlightKey(note, true);
+        }
+
+        function stopNote(note) {
+            if (!Module) return;
+            Module._midiNoteOff(note);
+            highlightKey(note, false);
+        }
+
+        function updateFormant(vowel) {
+            if (Module) Module._setFormant(vowel.charCodeAt(0));
+        }
+
+        function updateWaveform(val) {
+            if (Module) Module._setWaveform(parseInt(val));
+        }
+    </script>
+</body>
+</html>

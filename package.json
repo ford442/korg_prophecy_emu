@@ -1,0 +1,15 @@
+{
+  "name": "prophecy-wasm",
+  "version": "0.1.0",
+  "description": "Korg Prophecy synthesizer emulator in WebAssembly",
+  "scripts": {
+    "build": "./build.sh",
+    "serve": "cd build/web && python3 -m http.server 8000",
+    "test": "cd build && ctest --output-on-failure"
+  },
+  "keywords": ["synthesizer", "wasm", "emscripten", "dsp", "korg", "prophecy"],
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

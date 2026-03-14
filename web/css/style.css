@@ -1,0 +1,118 @@
+body {
+    background: #1a1a2e;
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+}
+
+h1 { 
+    color: #e94560; 
+    text-shadow: 0 0 10px #e94560; 
+}
+
+.controls {
+    background: #16213e;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px solid #0f3460;
+}
+
+.control-group {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+label { 
+    min-width: 120px; 
+    font-weight: bold; 
+}
+
+button {
+    background: #e94560;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover { 
+    background: #ff6b6b; 
+}
+
+button:active { 
+    transform: scale(0.98); 
+}
+
+.keyboard {
+    display: flex;
+    gap: 4px;
+    margin: 20px 0;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.key {
+    width: 40px;
+    height: 120px;
+    background: #f8f8f8;
+    border: 1px solid #333;
+    border-radius: 0 0 4px 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10px;
+    color: #333;
+    user-select: none;
+}
+
+.key.black {
+    background: #222;
+    color: #fff;
+    height: 80px;
+    margin: 0 -16px;
+    z-index: 2;
+}
+
+.key.active {
+    background: #e94560;
+    color: white;
+}
+
+.status {
+    margin: 10px 0;
+    padding: 10px;
+    background: #0f3460;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+select, input[type="range"] {
+    padding: 5px;
+    background: #0f3460;
+    color: white;
+    border: 1px solid #e94560;
+    border-radius: 4px;
+}
+
+input[type="range"] { 
+    width: 200px; 
+}
+
+a {
+    color: #e94560;
+}

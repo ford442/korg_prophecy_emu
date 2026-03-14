@@ -14,7 +14,7 @@ bool AudioEngine::initialize() {
     }
     
     SDL_AudioSpec desired, obtained;
-    SDL_zero(desired);
+    std::memset(&desired, 0, sizeof(desired));
     desired.freq = static_cast<int>(SAMPLE_RATE);
     desired.format = AUDIO_F32;  // Float32 (Web Audio native)
     desired.channels = 2;        // Stereo

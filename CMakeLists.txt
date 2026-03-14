@@ -25,34 +25,32 @@ set(HEADERS
 if(EMSCRIPTEN)
     message(STATUS "Configuring for Emscripten/WebAssembly")
     
+    # Set SDL2 usage globally - this is crucial for Emscripten ports
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sUSE_SDL=2")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sUSE_SDL=2")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sUSE_SDL=2")
+    
     add_executable(prophecy ${SOURCES} ${HEADERS})
     
     target_include_directories(prophecy PRIVATE include src)
     
-    # SDL2 settings for Emscripten
-    target_compile_options(prophecy PRIVATE -sUSE_SDL=2)
     target_compile_definitions(prophecy PRIVATE SDL_DISABLE_IMMINTRIN_H)
     
-    # Emscripten flags for audio and performance
+    # Additional Emscripten link options
     target_link_options(prophecy PRIVATE
-        "-s WASM=1"
-        "-s EXPORT_ES6=1"
-        "-s MODULARIZE=1"
-        "-s EXPORT_NAME=ProphecyModule"
-        "-s USE_SDL=2"
-        "-s INITIAL_MEMORY=64MB"
-        "-s ALLOW_MEMORY_GROWTH=1"
-        "-s EXPORTED_FUNCTIONS=['_malloc','_free','_initAudio','_shutdownAudio','_midiNoteOn','_midiNoteOff','_setFormant','_setWaveform','_setCutoff','_setResonance','_allNotesOff']"
-        "-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']"
-        "-s ENVIRONMENT=web,worker"
-        "-s AUTO_JS_LIBRARIES=1"
-        "-s AUTO_NATIVE_LIBRARIES=1"
+        "-sWASM=1"
+        "-sEXPORT_ES6=1"
+        "-sMODULARIZE=1"
+        "-sEXPORT_NAME=ProphecyModule"
+        "-sINITIAL_MEMORY=64MB"
+        "-sALLOW_MEMORY_GROWTH=1"
+        "-sEXPORTED_FUNCTIONS=['_malloc','_free','_initAudio','_shutdownAudio','_midiNoteOn','_midiNoteOff','_setFormant','_setWaveform','_setCutoff','_setResonance','_allNotesOff']"
+        "-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']"
+        "-sENVIRONMENT=web,worker"
         "-O3"
         "-flto"
         "--closure=1"
     )
-    
-
     
     # Set output to web directory
     set_target_properties(prophecy PROPERTIES

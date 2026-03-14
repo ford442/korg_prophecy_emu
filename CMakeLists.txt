@@ -29,6 +29,10 @@ if(EMSCRIPTEN)
     
     target_include_directories(prophecy PRIVATE include src)
     
+    # SDL2 settings for Emscripten
+    target_compile_options(prophecy PRIVATE -sUSE_SDL=2)
+    target_compile_definitions(prophecy PRIVATE SDL_DISABLE_IMMINTRIN_H)
+    
     # Emscripten flags for audio and performance
     target_link_options(prophecy PRIVATE
         "-s WASM=1"
@@ -38,7 +42,7 @@ if(EMSCRIPTEN)
         "-s USE_SDL=2"
         "-s INITIAL_MEMORY=64MB"
         "-s ALLOW_MEMORY_GROWTH=1"
-        "-s EXPORTED_FUNCTIONS=['_malloc','_free','_initAudio','_processMidi','_setFormant','_setWaveform','_setCutoff','_setResonance']"
+        "-s EXPORTED_FUNCTIONS=['_malloc','_free','_initAudio','_shutdownAudio','_midiNoteOn','_midiNoteOff','_setFormant','_setWaveform','_setCutoff','_setResonance','_allNotesOff']"
         "-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']"
         "-s ENVIRONMENT=web,worker"
         "-O3"

@@ -7,9 +7,20 @@
 
 #pragma once
 #include "ProphecyDSP.h"
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+// SDL2 headers - use system headers for native, Emscripten port for WASM
+#ifdef __EMSCRIPTEN__
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
+
 #include <vector>
-#include <memory>
+#include <cstdint>
 
 namespace ProphecyDSP {
 

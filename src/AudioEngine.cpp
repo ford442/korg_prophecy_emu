@@ -1,6 +1,7 @@
 #include "AudioEngine.h"
 #include <cstring>
 #include <algorithm>
+#include <cmath>
 
 namespace ProphecyDSP {
 

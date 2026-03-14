@@ -3,6 +3,27 @@ set -e
 
 echo "🔧 Building Korg Prophecy WASM Emulator..."
 
+# Resolve the repo's wasm_renderer directory (always relative to this script,
+# regardless of where the script is invoked from).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "Source directory: $SCRIPT_DIR"
+
+# Source Emscripten from wherever emsdk lives
+CANDIDATES=(
+    "/content/build_space/emsdk/emsdk_env.sh"
+    "${REPO_ROOT:-}/emsdk/emsdk_env.sh"
+    "$HOME/emsdk/emsdk_env.sh"
+    "/usr/local/emsdk/emsdk_env.sh"
+)
+for f in "${CANDIDATES[@]}"; do
+    if [ -f "$f" ]; then
+        # shellcheck disable=SC1090
+        source "$f"
+        break
+    fi
+done
+
+
 # Check for Emscripten
 if ! command -v emcmake &> /dev/null; then
     echo "❌ Emscripten not found. Please install and activate emsdk:"

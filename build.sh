@@ -42,7 +42,7 @@ emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
 
 # Build
 echo "🏗️  Building..."
-emmake make -j$(nproc)
+emmake make -j55
 
 echo "✅ Build complete! Output in build/web/"
 echo "🚀 Run: cd build/web && python3 -m http.server 8000"

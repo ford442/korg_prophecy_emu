@@ -53,20 +53,31 @@
         </small></p>
     </div>
 
-    <script>
-        // Configure Emscripten module BEFORE loading the script
-        var ProphecyModule = {
-            onRuntimeInitialized: function() {
-                console.log('WASM module initialized');
-                document.getElementById('status').textContent = "WASM loaded. Click 'Initialize Audio' to start.";
-                document.getElementById('initBtn').disabled = false;
-            }
-        };
-    </script>
     <script src="prophecy.js"></script>
     <script src="js/midi.js"></script>
     <script>
+        // Module instance - will be set when WASM loads
+        let Module = null;
         let audioCtx;
+        let wasmReady = false;
+        
+        // Initialize WASM module
+        // ProphecyModule is a factory function created by Emscripten
+        if (typeof ProphecyModule === 'function') {
+            ProphecyModule().then(function(instance) {
+                Module = instance;
+                wasmReady = true;
+                console.log('WASM module initialized');
+                document.getElementById('status').textContent = "WASM loaded. Click 'Initialize Audio' to start.";
+                document.getElementById('initBtn').disabled = false;
+            }).catch(function(err) {
+                console.error('Failed to load WASM:', err);
+                document.getElementById('status').textContent = "❌ Failed to load WASM module";
+            });
+        } else {
+            console.error('ProphecyModule not found');
+            document.getElementById('status').textContent = "❌ WASM script not loaded";
+        }
         
         // Initialize keyboard (2 octaves)
         const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -117,13 +128,18 @@
         }
 
         async function initAudio() {
+            if (!wasmReady || !Module) {
+                document.getElementById('status').textContent = "WASM not ready yet...";
+                return;
+            }
+            
             document.getElementById('status').textContent = "Initializing audio...";
             
             // AudioContext requires user gesture
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             await audioCtx.resume();
             
-            if (ProphecyModule._initAudio()) {
+            if (Module._initAudio()) {
                 document.getElementById('status').textContent = 
                     "✅ Audio initialized. Sample rate: " + audioCtx.sampleRate;
                 document.getElementById('initBtn').disabled = true;
@@ -135,23 +151,23 @@
         }
 
         function playNote(note) {
-            if (!ProphecyModule) return;
-            ProphecyModule._midiNoteOn(note, 100);
+            if (!Module) return;
+            Module._midiNoteOn(note, 100);
             highlightKey(note, true);
         }
 
         function stopNote(note) {
-            if (!ProphecyModule) return;
-            ProphecyModule._midiNoteOff(note);
+            if (!Module) return;
+            Module._midiNoteOff(note);
             highlightKey(note, false);
         }
 
         function updateFormant(vowel) {
-            if (ProphecyModule) ProphecyModule._setFormant(vowel.charCodeAt(0));
+            if (Module) Module._setFormant(vowel.charCodeAt(0));
         }
 
         function updateWaveform(val) {
-            if (ProphecyModule) ProphecyModule._setWaveform(parseInt(val));
+            if (Module) Module._setWaveform(parseInt(val));
         }
     </script>
 </body>
